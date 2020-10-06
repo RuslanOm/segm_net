@@ -1,0 +1,6 @@
+2020-10-06 17:33:54,043 INFO Let the games begin
+2020-10-06 17:33:54,044 INFO Using hflip aug with params 0.5
+2020-10-06 17:33:54,044 INFO Using rscale_crop aug with params [1024, 1024]
+2020-10-06 17:33:54,208 INFO Using sgd optimizer
+2020-10-06 17:33:54,209 INFO Using bootstrapped_cross_entropy with {'min_K': 4096, 'loss_th': 0.3, 'size_average': True} params
+2020-10-06 17:33:54,209 INFO No checkpoint found at 'None'
