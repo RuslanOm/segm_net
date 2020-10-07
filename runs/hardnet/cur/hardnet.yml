@@ -9,10 +9,10 @@ data:
     path: data/
     sbd_path: data/
 training:
-    train_iters: 90000
-    batch_size: 16
+    train_iters: 10
+    batch_size: 1
     val_interval: 500
-    n_workers: 8
+    n_workers: 2
     print_interval: 10
     augmentations:
         hflip: 0.5

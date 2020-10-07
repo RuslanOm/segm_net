@@ -22,12 +22,13 @@ from ptsemseg.optimizers import get_optimizer
 
 from tensorboardX import SummaryWriter
 
+
 def weights_init(m):
     if isinstance(m, nn.Conv2d):
         nn.init.xavier_normal_(m.weight)
 
-def train(cfg, writer, logger):
 
+def train(cfg, writer, logger):
     # Setup seeds
     torch.manual_seed(cfg.get("seed", 1337))
     torch.cuda.manual_seed(cfg.get("seed", 1337))
@@ -57,7 +58,7 @@ def train(cfg, writer, logger):
         data_path,
         is_transform=True,
         split=cfg["data"]["val_split"],
-        img_size=(1024,2048),
+        img_size=(1024, 2048),
     )
 
     n_classes = t_loader.n_classes
@@ -77,15 +78,15 @@ def train(cfg, writer, logger):
 
     # Setup Model
     model = get_model(cfg["model"], n_classes).to(device)
-    
+
     total_params = sum(p.numel() for p in model.parameters())
-    print( 'Parameters:',total_params )
+    print('Parameters:', total_params)
 
     model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
     model.apply(weights_init)
-    pretrained_path='weights/hardnet_petite_base.pth'
-    weights = torch.load(pretrained_path)
-    model.module.base.load_state_dict(weights)
+    # pretrained_path = 'weights/hardnet_petite_base.pth'
+    # weights = torch.load(pretrained_path)
+    # model.module.base.load_state_dict(weights)
 
     # Setup optimizer, lr_scheduler and loss function
     optimizer_cls = get_optimizer(cfg)
@@ -136,6 +137,7 @@ def train(cfg, writer, logger):
     loss_n = 0
     while i <= cfg["training"]["train_iters"] and flag:
         for (images, labels, _) in trainloader:
+            print(images, labels, _)
             i += 1
             start_ts = time.time()
             scheduler.step()
@@ -154,7 +156,7 @@ def train(cfg, writer, logger):
             time_meter.update(time.time() - start_ts)
             loss_all += loss.item()
             loss_n += 1
-            
+
             if (i + 1) % cfg["training"]["print_interval"] == 0:
                 fmt_str = "Iter [{:d}/{:d}]  Loss: {:.4f}  Time/Image: {:.4f}  lr={:.6f}"
                 print_str = fmt_str.format(
@@ -164,7 +166,6 @@ def train(cfg, writer, logger):
                     time_meter.avg / cfg["training"]["batch_size"],
                     c_lr[0],
                 )
-                
 
                 print(print_str)
                 logger.info(print_str)
@@ -207,12 +208,12 @@ def train(cfg, writer, logger):
 
                 val_loss_meter.reset()
                 running_metrics_val.reset()
-                
+
                 state = {
-                      "epoch": i + 1,
-                      "model_state": model.state_dict(),
-                      "optimizer_state": optimizer.state_dict(),
-                      "scheduler_state": scheduler.state_dict(),
+                    "epoch": i + 1,
+                    "model_state": model.state_dict(),
+                    "optimizer_state": optimizer.state_dict(),
+                    "scheduler_state": scheduler.state_dict(),
                 }
                 save_path = os.path.join(
                     writer.file_writer.get_logdir(),
