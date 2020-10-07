@@ -4,8 +4,8 @@ data:
     dataset: cityscapes
     train_split: train
     val_split: val
-    img_rows: 640
-    img_cols: 480
+    img_rows: 1024
+    img_cols: 1024
     path: data/
     sbd_path: data/
 training:
@@ -16,7 +16,7 @@ training:
     print_interval: 10
     augmentations:
         hflip: 0.5
-        rscale_crop: [640, 480]
+        rscale_crop: [1024, 1024]
     optimizer:
         name: 'sgd'
         lr: 0.02

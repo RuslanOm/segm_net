@@ -1,7 +1,13 @@
 import copy
-import torchvision.models as models
 
-from ptsemseg.models.hardnet import hardnet
+from ptsemseg.models.hardnet import hardnet, HardnetLowResolution
+
+
+models = {
+    "hardnet" : hardnet,
+    "hardnet_lr": HardnetLowResolution
+}
+
 
 def get_model(model_dict, n_classes, version=None):
     name = model_dict["arch"]
@@ -16,8 +22,6 @@ def get_model(model_dict, n_classes, version=None):
 
 def _get_model_instance(name):
     try:
-        return {
-            "hardnet": hardnet,
-        }[name]
+        return models[name]
     except:
         raise ("Model {} not available".format(name))
