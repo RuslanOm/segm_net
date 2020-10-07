@@ -137,7 +137,7 @@ def train(cfg, writer, logger):
     loss_n = 0
     while i <= cfg["training"]["train_iters"] and flag:
         for (images, labels, _) in trainloader:
-            print(images, labels, _)
+            # print(images, labels, _)
             i += 1
             start_ts = time.time()
             scheduler.step()
