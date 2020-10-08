@@ -372,7 +372,7 @@ class HardnetLowResolution(nn.Module):
             ConvLayer(in_channels=3, out_channels=first_ch[0], kernel=3,
                       stride=2))
         self.base.append(ConvLayer(first_ch[0], first_ch[1], kernel=3))
-        self.base.append(ConvLayer(first_ch[1], first_ch[2], kernel=3, stride=2))
+        self.base.append(ConvLayer(first_ch[1], first_ch[2], kernel=3, stride=1))
         self.base.append(ConvLayer(first_ch[2], first_ch[3], kernel=3))
 
         skip_connection_channel_counts = []
