@@ -12,13 +12,13 @@ from ptsemseg.augmentations import Compose, RandomHorizontallyFlip, RandomRotate
 
 class mapillaryVistasLoader(data.Dataset):
     def __init__(
-        self,
-        root,
-        split="training",
-        img_size=(640, 1280),
-        is_transform=True,
-        augmentations=None,
-        test_mode=False,
+            self,
+            root,
+            split="training",
+            img_size=(640, 1280),
+            is_transform=True,
+            augmentations=None,
+            test_mode=False,
     ):
         self.root = root
         self.split = split
@@ -116,9 +116,9 @@ class mapillaryVistasLoader(data.Dataset):
 
 
 if __name__ == "__main__":
-    augment = Compose([RandomHorizontallyFlip(), RandomRotate(6)])
+    augment = Compose([RandomRotate(6)])
 
-    local_path = "/private/home/meetshah/datasets/seg/vistas/"
+    local_path = "/home/ruslan/datasets"
     dst = mapillaryVistasLoader(
         local_path, img_size=(512, 1024), is_transform=True, augmentations=augment
     )

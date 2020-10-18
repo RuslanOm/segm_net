@@ -9,7 +9,6 @@ import numpy as np
 import torch.nn as nn
 
 from torch.utils import data
-from tqdm import tqdm
 
 from ptsemseg.models import get_model
 from ptsemseg.loss import get_loss_function
@@ -28,7 +27,7 @@ def weights_init(m):
         nn.init.xavier_normal_(m.weight)
 
 
-def train(cfg, writer, logger):
+def train(cfg, writer, logger, base=True):
     # Setup seeds
     torch.manual_seed(cfg.get("seed", 1337))
     torch.cuda.manual_seed(cfg.get("seed", 1337))
@@ -58,7 +57,7 @@ def train(cfg, writer, logger):
         data_path,
         is_transform=True,
         split=cfg["data"]["val_split"],
-        img_size=(1024, 2048),
+        img_size=(1024, 1024),
     )
 
     n_classes = t_loader.n_classes
@@ -84,9 +83,10 @@ def train(cfg, writer, logger):
 
     model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
     model.apply(weights_init)
-    # pretrained_path = 'weights/hardnet_petite_base.pth'
-    # weights = torch.load(pretrained_path)
-    # model.module.base.load_state_dict(weights)
+    if base:
+        pretrained_path = 'weights/hardnet_petite_base.pth'
+        weights = torch.load(pretrained_path)
+        model.module.base.load_state_dict(weights)
 
     # Setup optimizer, lr_scheduler and loss function
     optimizer_cls = get_optimizer(cfg)
@@ -136,8 +136,7 @@ def train(cfg, writer, logger):
     loss_all = 0
     loss_n = 0
     while i <= cfg["training"]["train_iters"] and flag:
-        for (images, labels, _) in trainloader:
-            # print(images, labels, _)
+        for images, labels in trainloader:
             i += 1
             start_ts = time.time()
             scheduler.step()
@@ -180,7 +179,7 @@ def train(cfg, writer, logger):
                 loss_all = 0
                 loss_n = 0
                 with torch.no_grad():
-                    for i_val, (images_val, labels_val, _) in tqdm(enumerate(valloader)):
+                    for i_val, (images_val, labels_val) in enumerate(valloader):
                         images_val = images_val.to(device)
                         labels_val = labels_val.to(device)
 
@@ -199,12 +198,12 @@ def train(cfg, writer, logger):
                 score, class_iou = running_metrics_val.get_scores()
                 for k, v in score.items():
                     print(k, v)
-                    logger.info("{}: {}".format(k, v))
-                    writer.add_scalar("val_metrics/{}".format(k), v, i + 1)
+                    logger.info(f"{k}: {v}")
+                    writer.add_scalar(f"val_metrics/{k}", v, i + 1)
 
                 for k, v in class_iou.items():
-                    logger.info("{}: {}".format(k, v))
-                    writer.add_scalar("val_metrics/cls_{}".format(k), v, i + 1)
+                    logger.info(f"{k}: {v}")
+                    writer.add_scalar(f"val_metrics/cls_{k}", v, i + 1)
 
                 val_loss_meter.reset()
                 running_metrics_val.reset()
@@ -217,8 +216,9 @@ def train(cfg, writer, logger):
                 }
                 save_path = os.path.join(
                     writer.file_writer.get_logdir(),
-                    "{}_{}_checkpoint.pkl".format(cfg["model"]["arch"], cfg["data"]["dataset"]),
+                    f"{cfg['model']['arch']}_{cfg['data']['dataset']}_checkpoint.pkl",
                 )
+
                 torch.save(state, save_path)
 
                 if score["Mean IoU : \t"] >= best_iou:
@@ -227,12 +227,15 @@ def train(cfg, writer, logger):
                         "epoch": i + 1,
                         "model_state": model.state_dict(),
                         "best_iou": best_iou,
+                        "optimizer_state": optimizer.state_dict(),
+                        "scheduler_state": scheduler.state_dict()
                     }
                     save_path = os.path.join(
                         writer.file_writer.get_logdir(),
-                        "{}_{}_best_model.pkl".format(cfg["model"]["arch"], cfg["data"]["dataset"]),
+                        f"{cfg['model']['arch']}_{cfg['data']['dataset']}_best_model.pkl",
                     )
                     torch.save(state, save_path)
+
                 torch.cuda.empty_cache()
 
             if (i + 1) == cfg["training"]["train_iters"]:
