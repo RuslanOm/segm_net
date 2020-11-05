@@ -175,8 +175,7 @@ class cityscapesLoaderAlter(data.Dataset):
         :param img:
         :param lbl:
         """
-        img = np.array(Image.fromarray(img).resize(
-                (self.img_size[1], self.img_size[0])))  # uint8 with RGB mode
+        img = np.array(Image.fromarray(img))  # uint8 with RGB mode
         img = img[:, :, ::-1]  # RGB -> BGR
         img = img.astype(np.float64)
 
@@ -194,8 +193,7 @@ class cityscapesLoaderAlter(data.Dataset):
 
         classes = np.unique(lbl)
         lbl = lbl.astype(float)
-        lbl = np.array(Image.fromarray(lbl).resize(
-                (self.img_size[1], self.img_size[0]), resample=Image.NEAREST))
+        lbl = np.array(Image.fromarray(lbl))
         lbl = lbl.astype(int)
 
         if not np.all(classes == np.unique(lbl)):
