@@ -175,7 +175,7 @@ class cityscapesLoaderAlter(data.Dataset):
         :param img:
         :param lbl:
         """
-        img = np.array(Image.fromarray(img))  # uint8 with RGB mode
+        img = np.array(img)  # uint8 with RGB mode
         img = img[:, :, ::-1]  # RGB -> BGR
         img = img.astype(np.float64)
 
@@ -192,8 +192,8 @@ class cityscapesLoaderAlter(data.Dataset):
         img = img.transpose(2, 0, 1)
 
         classes = np.unique(lbl)
-        lbl = lbl.astype(float)
-        lbl = np.array(Image.fromarray(lbl))
+        # lbl = lbl.astype(float)
+        lbl = np.array(lbl)
         lbl = lbl.astype(int)
 
         if not np.all(classes == np.unique(lbl)):
