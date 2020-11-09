@@ -155,10 +155,10 @@ class cityscapesLoaderAlter(data.Dataset):
         )
 
         img = Image.open(img_path)
-        img = np.array(img, dtype=np.uint8)
+        # img = np.array(img, dtype=np.uint8)
 
         lbl = Image.open(lbl_path)
-        lbl = self.encode_segmap(np.array(lbl, dtype=np.uint8))
+        # lbl = self.encode_segmap(np.array(lbl, dtype=np.uint8))
 
         if self.augmentations is not None:
             img, lbl = self.augmentations(img, lbl)
